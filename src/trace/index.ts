@@ -13,10 +13,6 @@ export interface TraceOptions {
   background?: string | "transparent";
 }
 
-export interface TraceResult {
-  svg: string;
-}
-
 export async function TraceLayers(
   layerData: LayerData,
   options: TraceOptions = {}

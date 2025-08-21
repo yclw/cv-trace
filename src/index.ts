@@ -12,5 +12,4 @@ export { BinaryPreprocess, type BinaryOptions } from "./preprocess/binary.js";
 export {
   TraceLayers,
   type TraceOptions,
-  type TraceResult,
 } from "./trace/index.js";
