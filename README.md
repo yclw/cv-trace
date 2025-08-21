@@ -61,6 +61,6 @@ Currently uses potrace to convert LayerData to a hierarchical SVG image
 
 ## LICENSE
 
-GPL-2.0-or-later
+[GPL-2.0-or-later](LICENSE)
 
 > Potrace is GPL LICENSE
