@@ -10,7 +10,7 @@ export { BinaryPreprocess, type BinaryOptions } from "./preprocess/binary.js";
 
 // Potrace Trace
 export {
-  traceLayers,
+  TraceLayers,
   type TraceOptions,
   type TraceResult,
 } from "./trace/index.js";

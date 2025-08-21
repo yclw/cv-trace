@@ -17,7 +17,7 @@ export interface TraceResult {
   svg: string;
 }
 
-export async function traceLayers(
+export async function TraceLayers(
   layerData: LayerData,
   options: TraceOptions = {}
 ): Promise<VectorizeResult> {
