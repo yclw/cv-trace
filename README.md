@@ -66,11 +66,10 @@ test.jpg -> preview.png -> output.svg
 
 ### Example
 
-| Original Image | Preprocessed Image | Vector Result |
-|:--------------:|:-----------------:|:-------------:|
-| ![test.jpg](test/test.jpg) | ![preview.png](test/preview.png) | ![output.svg](test/output.svg) |
+|        Original Image        |         Preprocessed Image         |          Vector Result           |
+| :--------------------------: | :--------------------------------: | :------------------------------: |
+|  ![test.jpg](test/test.jpg)  |  ![preview.png](test/preview.png)  |  ![output.svg](test/output.svg)  |
 | ![test1.jpg](test/test1.jpg) | ![preview1.png](test/preview1.png) | ![output1.svg](test/output1.svg) |
-| test.jpg | preview.png | output.svg |
 
 ## Core
 
@@ -103,9 +102,22 @@ export interface VectorizeResult {
 }
 ```
 
-### Process
+### Process Flow
 
-(Image Buffer) --preprocess--> (LayerData) --trace--> (VectorizeResult) --optimizer--> (VectorizeResult)
+(Image Buffer) --preprocess--> (LayerData) --trace--> (VectorizeResult) --
+optimizer--> (VectorizeResult)
+
+```mermaid
+flowchart LR
+    A[Image Buffer] --> B{Preprocess}
+    B --> C[LayerData]
+    C --> D{Trace}
+    D --> E[VectorizeResult]
+    E --> F{Optimizer}
+    F --> G[Optimized SVG]
+
+    B -.-> H[Preview Image]
+```
 
 ## Preprocess
 
@@ -128,6 +140,14 @@ Currently uses potrace to convert LayerData to a hierarchical SVG image
 ## Optimizer
 
 > Plan to use svgo to optimize svg string
+
+## Credits
+
+- [Potrace](http://potrace.sourceforge.net/)
+- [inkscape](https://inkscape.org/)
+- [image-quantization](https://github.com/ibezkrovnyi/image-quantization)
+- [svgo](https://github.com/svg/svgo)
+- [jimp](https://github.com/jimp-dev/jimp)
 
 ## LICENSE
 
