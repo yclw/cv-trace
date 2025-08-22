@@ -1,0 +1,14 @@
+src/
+tsconfig.json
+
+test.jpg
+test.js
+output/
+
+.gitignore
+.cursor/
+.DS_Store
+
+pnpm-lock.yaml
+
+.git/

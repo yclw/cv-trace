@@ -16,5 +16,3 @@ build/Release
 dist
 node_modules
 output
-test.jpg
-test.js

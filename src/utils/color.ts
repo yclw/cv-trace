@@ -1,10 +1,19 @@
-export function rgbToHex(r: number, g: number, b: number): string {
+// #RRGGBB
+export function rgbToHexString(r: number, g: number, b: number): string {
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
-export function hexToRgb(hex: string): [number, number, number] {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return [r, g, b];
+// RRGGBB
+export function rgbToHex(r: number, g: number, b: number): number {
+  return (r << 16) | (g << 8) | b;
+}
+
+// BT.709
+export function rgbToBT709(r: number, g: number, b: number): number {
+  return r * 0.2126 + g * 0.7152 + b * 0.0722;
+}
+
+// BT.601
+export function rgbToBT601(r: number, g: number, b: number): number {
+  return r * 0.299 + g * 0.587 + b * 0.114;
 }

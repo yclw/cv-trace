@@ -2,6 +2,46 @@
 
 A library for tracing images to SVG
 
+[![npm version](https://badge.fury.io/js/cv-trace.svg)](https://badge.fury.io/js/cv-trace)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+
+## Install
+
+```bash
+npm install cv-trace
+# or
+pnpm add cv-trace
+```
+
+## Start quickly
+
+```typescript
+import { readFileSync, writeFileSync } from "fs";
+import { BinaryPreprocess, Potrace, OptimizeSvg } from "cv-trace";
+
+const imageBuffer = readFileSync("./test.jpg");
+// 1. Preprocess (if use BinaryPreprocess)
+const layerData = await BinaryPreprocess(imageBuffer, {
+  threshold: [128, 255],
+  color: "#000000",
+});
+// 2. Trace (if use Potrace)
+const result = await Potrace(layerData);
+// 3. Optimize (optional)
+result.svg = await OptimizeSvg(result.svg);
+writeFileSync("./output.svg", result.svg);
+writeFileSync("./preview.png", result.preprocessedImage);
+```
+
+test.jpg -> preview.png -> output.svg
+
+### Example
+
+| Original Image | Preprocessed Image | Vector Result |
+|:--------------:|:-----------------:|:-------------:|
+| ![test.jpg](test/test.jpg) | ![preview.png](test/preview.png) | ![output.svg](test/output.svg) |
+| test.jpg | preview.png | output.svg |
+
 ## Core
 
 ### Type
@@ -39,7 +79,7 @@ export interface VectorizeResult {
 
 ## Preprocess
 
-Use Preprocessor to convert Image Buffer to LayerData
+Use Preprocessor to convert Image Buffer to LayerData ( with preprocessedImage for Preview )
 
 ### Preprocessor
 

@@ -1,7 +1,7 @@
 import potrace from "potrace";
 import { LayerData, Layer, VectorizeResult } from "../types/index.js";
 
-export interface TraceOptions {
+export interface PotraceOptions {
   turdPolicy?: "minority" | "majority" | "black" | "white" | "left" | "right";
   turdSize?: number;
   alphaMax?: number;
@@ -13,11 +13,11 @@ export interface TraceOptions {
   background?: string | "transparent";
 }
 
-export async function TraceLayers(
+export async function Potrace(
   layerData: LayerData,
-  options: TraceOptions = {}
+  options: PotraceOptions = {}
 ): Promise<VectorizeResult> {
-  layerData.layers = layerData.layers.sort((a, b) => a.zIndex - b.zIndex);
+  layerData.layers = layerData.layers.sort((a, b) => b.zIndex - a.zIndex);
   const svg = await generateCombinedSVG(layerData, options);
   return {
     svg,
@@ -28,7 +28,7 @@ export async function TraceLayers(
 
 async function generateCombinedSVG(
   layerDate: LayerData,
-  options: TraceOptions = {}
+  options: PotraceOptions = {}
 ): Promise<string> {
   const { width, height } = layerDate.originalMetadata;
   let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
@@ -41,7 +41,7 @@ async function generateCombinedSVG(
 
 async function traceLayer(
   layer: Layer,
-  options: TraceOptions = {}
+  options: PotraceOptions = {}
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const tracer = new potrace.Potrace();
