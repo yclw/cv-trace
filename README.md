@@ -70,6 +70,7 @@ test.jpg -> preview.png -> output.svg
 | :--------------------------: | :--------------------------------: | :------------------------------: |
 |  ![test.jpg](test/test.jpg)  |  ![preview.png](test/preview.png)  |  ![output.svg](test/output.svg)  |
 | ![test1.jpg](test/test1.jpg) | ![preview1.png](test/preview1.png) | ![output1.svg](test/output1.svg) |
+| ![test0.jpg](test/test0.png) | ![preview0.png](test/preview0.png) | ![output0.svg](test/output0.svg) |
 
 ## Core
 
