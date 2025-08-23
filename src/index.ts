@@ -4,20 +4,20 @@ export type { LayerData, Layer, OriginalMetadata, VectorizeResult } from "./type
 // Preprocess
 
 // Binary Preprocess
-export { BinaryPreprocess, type BinaryOptions } from "./preprocess/binary.js";
+export { binaryPreprocess, type BinaryOptions } from "./preprocess/binary.js";
 
 // Quantize Preprocess
 export {
-  QuantizePreprocess,
+  quantizePreprocess,
   type QuantizeOptions,
 } from "./preprocess/quantize.js";
 
 // Trace
 
 // Potrace Trace
-export { Potrace, type PotraceOptions } from "./trace/potrace.js";
+export { potrace, type PotraceOptions } from "./trace/potrace.js";
 
 // Optimizer
 
 // SVGO
-export { OptimizeSvg, type SvgoOptions } from "./optimizer/svgo.js";
+export { optimizeSvg, type SvgoOptions } from "./optimizer/svgo.js";

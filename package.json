@@ -1,26 +1,29 @@
 {
   "name": "cv-trace",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A library for tracing images to SVG",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:package-jsons",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:esm": "tsc -p tsconfig.esm.json", 
+    "build:types": "tsc -p tsconfig.types.json",
+    "build:package-jsons": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "dev": "tsc --watch",
     "clean": "rimraf dist",
-    "prepublishOnly": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "image",

@@ -1,12 +1,32 @@
 src/
-tsconfig.json
 
-output/
-
+tsconfig*.json
 .gitignore
 .cursor/
 .DS_Store
 
+test/
+examples/
+*.log
+*.tmp
+
+README.dev.md
+docs/
+coverage/
+
 pnpm-lock.yaml
+yarn.lock
+package-lock.json
+node_modules/
 
 .git/
+.gitattributes
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+.DS_Store
+Thumbs.db

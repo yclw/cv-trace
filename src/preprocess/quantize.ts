@@ -3,7 +3,7 @@ import { buildPalette, utils, applyPalette } from "image-q";
 import { LayerData, OriginalMetadata, Layer } from "../types/index.js";
 import { rgbToHexString, rgbToBT709, rgbToHex } from "../utils/color.js";
 
-export interface QuantizeOptions {
+export type QuantizeOptions = {
   colorCount?: number;
   minPercent?: number;
   stack?: boolean;
@@ -12,7 +12,7 @@ export interface QuantizeOptions {
   contrast?: number;
 }
 
-export async function QuantizePreprocess(
+export async function quantizePreprocess(
   image: Buffer,
   options: QuantizeOptions = {}
 ): Promise<LayerData> {

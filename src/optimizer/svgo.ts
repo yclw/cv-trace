@@ -2,7 +2,7 @@ import { optimize, Config } from "svgo";
 
 export type SvgoOptions = Config;
 
-export async function OptimizeSvg(
+export async function optimizeSvg(
   svgString: string,
   options?: SvgoOptions
 ): Promise<string> {

@@ -1,19 +1,9 @@
-import potrace from "potrace";
+import potraceLib from "potrace";
 import { LayerData, Layer, VectorizeResult } from "../types/index.js";
 
-export interface PotraceOptions {
-  turdPolicy?: "minority" | "majority" | "black" | "white" | "left" | "right";
-  turdSize?: number;
-  alphaMax?: number;
-  optCurve?: boolean;
-  optTolerance?: number;
-  threshold?: number;
-  blackOnWhite?: boolean;
-  color?: string | "auto";
-  background?: string | "transparent";
-}
+export type PotraceOptions = potraceLib.PotraceOptions;
 
-export async function Potrace(
+export async function potrace(
   layerData: LayerData,
   options: PotraceOptions = {}
 ): Promise<VectorizeResult> {
@@ -44,31 +34,9 @@ async function traceLayer(
   options: PotraceOptions = {}
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-    const tracer = new potrace.Potrace();
-
-    const {
-      turdPolicy = "minority",
-      turdSize = 2,
-      alphaMax = 1,
-      optCurve = true,
-      optTolerance = 0.2,
-      threshold = -1,
-      blackOnWhite = true,
-      color = layer.color,
-    } = options;
-
-    tracer.setParameters({
-      turdPolicy: turdPolicy,
-      turdSize: turdSize,
-      alphaMax: alphaMax,
-      optCurve: optCurve,
-      optTolerance: optTolerance,
-      threshold: threshold,
-      blackOnWhite: blackOnWhite,
-      color: color,
-      background: "transparent",
-    });
-
+    const tracer = new potraceLib.Potrace();
+    options.color = layer.color;
+    tracer.setParameters(options);
     tracer.loadImage(layer.imageBuffer, function (this: any, err: any) {
       if (err) {
         reject(new Error(`Layer load failed: ${err.message}`));

@@ -1,23 +1,23 @@
-export interface Layer {
+export type Layer = {
   id: string;
   zIndex: number;
   color: string;
   imageBuffer: Buffer;
 }
 
-export interface OriginalMetadata {
+export type OriginalMetadata = {
   width: number;
   height: number;
   format?: string;
 }
 
-export interface LayerData {
+export type LayerData = {
   layers: Layer[];
   preprocessedImage: Buffer;
   originalMetadata: OriginalMetadata;
 }
 
-export interface VectorizeResult {
+export type VectorizeResult = {
   svg: string;
   preprocessedImage: Buffer;
   originalMetadata: OriginalMetadata;

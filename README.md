@@ -15,88 +15,77 @@ pnpm add cv-trace
 
 ## Start quickly
 
-```typescript
+```javascript
 import { readFileSync, writeFileSync } from "fs";
-import { BinaryPreprocess, Potrace, OptimizeSvg } from "cv-trace";
-
-////////// test 1 : Binary //////////
-
-const imageBuffer = readFileSync("./test.jpg");
-
-// 1. Preprocess (if use BinaryPreprocess)
-const layerData = await BinaryPreprocess(imageBuffer, {
+import { binaryPreprocess, potrace, optimizeSvg } from "cv-trace";
+import type { BinaryOptions } from "cv-trace";
+// 1. Binary preprocessing
+const layerData = await binaryPreprocess(imageBuffer, {
   threshold: [128, 255],
   color: "#000000",
-});
-
-// 2. Trace (if use Potrace)
-const result = await Potrace(layerData);
-// 3. Optimize (optional)
-result.svg = await OptimizeSvg(result.svg);
-
+} as BinaryOptions);
+// 2. Vectorize with potrace
+const result = await potrace(layerData);
+// 3. Optimize SVG (optional)
+result.svg = await optimizeSvg(result.svg);
 writeFileSync("./output.svg", result.svg);
 writeFileSync("./preview.png", result.preprocessedImage);
 ```
 
-```typescript
+```javascript
 import { readFileSync, writeFileSync } from "fs";
-import { QuantizePreprocess, Potrace, OptimizeSvg } from "cv-trace";
-
-////////// test 2 : Color //////////
-
-const imageBuffer1 = readFileSync("./test1.jpg");
-
-// 1. Preprocess (if use QuantizePreprocess)
-const layerData1 = await QuantizePreprocess(imageBuffer1, {
+import { quantizePreprocess, potrace, optimizeSvg } from "cv-trace";
+import type { QuantizeOptions } from "cv-trace";
+const imageBuffer = readFileSync("./test1.jpg");
+// 1. Color quantization preprocessing  
+const layerData = await quantizePreprocess(imageBuffer, {
   colorCount: 16,
   minPercent: 0,
   stack: true,
-});
-
-// 2. Trace (if use Potrace)
-const result1 = await Potrace(layerData1);
-// 3. Optimize (optional)
-result1.svg = await OptimizeSvg(result1.svg);
-
-writeFileSync("./output1.svg", result1.svg);
-writeFileSync("./preview1.png", result1.preprocessedImage);
+} as QuantizeOptions);
+// 2. Vectorize with potrace
+const result = await potrace(layerData);
+// 3. Optimize SVG (optional)
+result.svg = await optimizeSvg(result.svg);
+writeFileSync("./output1.svg", result.svg);
+writeFileSync("./preview1.png", result.preprocessedImage);
 ```
 
-test.jpg -> preview.png -> output.svg
+> CommonJS : `const { binaryPreprocess, potrace, optimizeSvg } = require("cv-trace");`
 
 ### Example
 
 |        Original Image        |         Preprocessed Image         |          Vector Result           |
 | :--------------------------: | :--------------------------------: | :------------------------------: |
-|  ![test.jpg](test/test.jpg)  |  ![preview.png](test/preview.png)  |  ![output.svg](test/output.svg)  |
-| ![test1.jpg](test/test1.jpg) | ![preview1.png](test/preview1.png) | ![output1.svg](test/output1.svg) |
-| ![test0.jpg](test/test0.png) | ![preview0.png](test/preview0.png) | ![output0.svg](test/output0.svg) |
+| ![test0.jpg](examples/test0.png) | ![preview0.png](examples/preview0.png) | ![output0.svg](examples/output0.svg) |
+|  ![test.jpg](examples/test.jpg)  |  ![preview.png](examples/preview.png)  |  ![output.svg](examples/output.svg)  |
+| ![test1.jpg](examples/test1.jpg) | ![preview1.png](examples/preview1.png) | ![output1.svg](examples/output1.svg) |
 
 ## Core
 
 ### Type
 
 ```ts
-export interface Layer {
+export type Layer = {
   id: string;
   zIndex: number;
   color: string;
   imageBuffer: Buffer;
 }
 
-export interface OriginalMetadata {
+export type OriginalMetadata = {
   width: number;
   height: number;
   format?: string;
 }
 
-export interface LayerData {
+export type LayerData = {
   layers: Layer[];
   preprocessedImage: Buffer;
   originalMetadata: OriginalMetadata;
 }
 
-export interface VectorizeResult {
+export type VectorizeResult = {
   svg: string;
   preprocessedImage: Buffer;
   originalMetadata: OriginalMetadata;

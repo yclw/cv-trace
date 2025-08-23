@@ -1,7 +1,7 @@
 import { Jimp } from "jimp";
 import { LayerData, OriginalMetadata, Layer } from "../types/index.js";
 
-export interface BinaryOptions {
+export type BinaryOptions = {
   threshold?: [number, number];
   brightness?: number;
   blur?: number;
@@ -9,7 +9,7 @@ export interface BinaryOptions {
   color?: string;
 }
 
-export async function BinaryPreprocess(
+export async function binaryPreprocess(
   image: Buffer,
   options: BinaryOptions = {}
 ): Promise<LayerData> {
@@ -35,7 +35,7 @@ export async function BinaryPreprocess(
   if (blur) processedImage.blur(blur);
   if (contrast) processedImage.contrast(contrast);
 
-  // binary
+  // Binary
   for (const { idx } of processedImage.scanIterator()) {
     const gray = processedImage.bitmap.data[idx];
     if (!gray) continue;
