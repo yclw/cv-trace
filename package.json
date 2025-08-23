@@ -18,7 +18,7 @@
   "scripts": {
     "build": "npm run clean && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:package-jsons",
     "build:cjs": "tsc -p tsconfig.cjs.json",
-    "build:esm": "tsc -p tsconfig.esm.json", 
+    "build:esm": "tsc -p tsconfig.esm.json",
     "build:types": "tsc -p tsconfig.types.json",
     "build:package-jsons": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "dev": "tsc --watch",
@@ -53,8 +53,8 @@
   },
   "dependencies": {
     "image-q": "^4.0.0",
-    "jimp": "^1.6.0",
     "potrace": "^2.1.8",
+    "sharp": "^0.34.3",
     "svgo": "^4.0.0"
   }
 }

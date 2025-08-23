@@ -1,5 +1,10 @@
 // Core Types
-export type { LayerData, Layer, OriginalMetadata, VectorizeResult } from "./types/index.js";
+export type {
+  LayerData,
+  Layer,
+  OriginalMetadata,
+  VectorizeResult,
+} from "./types/index.js";
 
 // Preprocess
 

@@ -1,4 +1,4 @@
-import { Jimp } from "jimp";
+import sharp from "sharp";
 import { buildPalette, utils, applyPalette } from "image-q";
 import { LayerData, OriginalMetadata, Layer } from "../types/index.js";
 import { rgbToHexString, rgbToBT709, rgbToHex } from "../utils/color.js";
@@ -9,8 +9,7 @@ export type QuantizeOptions = {
   stack?: boolean;
   brightness?: number;
   blur?: number;
-  contrast?: number;
-}
+};
 
 export async function quantizePreprocess(
   image: Buffer,
@@ -22,28 +21,32 @@ export async function quantizePreprocess(
     stack = false,
     brightness,
     blur,
-    contrast,
   } = options;
 
-  const originalImage = await Jimp.read(image);
-  const width = originalImage.width;
-  const height = originalImage.height;
+  const sharpImage = sharp(image);
+  const metadata = await sharpImage.metadata();
+  const width = metadata.width!;
+  const height = metadata.height!;
   const size = width * height;
 
   const originalMetadata: OriginalMetadata = {
     width,
     height,
-    format: originalImage.mime || "image/png",
+    format: metadata.format ? `image/${metadata.format}` : "image/png",
   };
 
   // Apply image filters
-  let processedImage = originalImage.clone();
-  if (brightness) processedImage.brightness(brightness);
-  if (blur) processedImage.blur(blur);
-  if (contrast) processedImage.contrast(contrast);
+  let processedSharp = sharpImage.clone();
+  if (brightness !== undefined)
+    processedSharp = processedSharp.modulate({ brightness: brightness });
+  if (blur !== undefined) processedSharp = processedSharp.blur(blur);
 
+  const processedImageBuffer = await processedSharp
+    .ensureAlpha()
+    .raw()
+    .toBuffer();
   const inputImage = utils.PointContainer.fromBuffer(
-    processedImage.bitmap.data,
+    processedImageBuffer,
     width,
     height
   );
@@ -57,25 +60,26 @@ export async function quantizePreprocess(
 
   // Create color layers from palette points
   const palettePointArray = palette.getPointContainer().getPointArray();
+  const whiteBuffer = Buffer.alloc(width * height * 4, 255); // Create white RGBA buffer
   const colorLayers = palettePointArray.map((point, index) => ({
     color: [point.r, point.g, point.b] as [number, number, number],
     brightness: rgbToBT709(point.r, point.g, point.b),
     index,
-    mask: Buffer.alloc(size, 255),
+    maskBuffer: Buffer.from(whiteBuffer), // White buffer as mask
     count: 0,
   }));
 
   // Sort by brightness
   colorLayers.sort((a, b) => a.brightness - b.brightness);
 
-  // RGB color hash -> sorted layer
-  const colorLayerMap = new Map<number, (typeof colorLayers)[0]>();
-  colorLayers.forEach((layer) => {
+  // RGB color hash -> sorted layer index
+  const colorLayerMap = new Map<number, number>();
+  colorLayers.forEach((layer, index) => {
     const colorKey = rgbToHex(layer.color[0], layer.color[1], layer.color[2]);
-    colorLayerMap.set(colorKey, layer);
+    colorLayerMap.set(colorKey, index);
   });
 
-  // Create binary masks for each color layer
+  // Generate layers directly while processing pixels
   for (let pixelIdx = 0; pixelIdx < size; pixelIdx++) {
     const rgbaIdx = pixelIdx * 4;
     const [r, g, b] = [
@@ -85,49 +89,50 @@ export async function quantizePreprocess(
     ];
 
     const colorKey = rgbToHex(r, g, b);
-    const targetLayer = colorLayerMap.get(colorKey);
+    const layerIndex = colorLayerMap.get(colorKey);
 
-    if (!targetLayer) continue;
+    if (layerIndex === undefined) continue;
 
-    targetLayer.mask[pixelIdx] = 0;
-    targetLayer.count++;
+    colorLayers[layerIndex]!.count++;
+
+    // Set pixel to black for current layer and subsequent layers (if stack mode)
+    for (let layerIdx = layerIndex; layerIdx < colorLayers.length; layerIdx++) {
+      const layer = colorLayers[layerIdx];
+      if (!layer) continue;
+      layer.maskBuffer.set([0, 0, 0], rgbaIdx);
+      if (!stack) break;
+    }
   }
 
   const layers: Layer[] = [];
 
-  // Initialize base white canvas for layer composition
-  const baseCanvas = new Jimp({ width, height, color: 0xffffffff });
-  let canvas = baseCanvas.clone();
-
-  // Generate layers from color masks
+  // Generate final layers
   for (let layerIdx = 0; layerIdx < colorLayers.length; layerIdx++) {
     const colorLayer = colorLayers[layerIdx];
     if (!colorLayer) continue;
-    const { mask, count, color } = colorLayer;
+    const { maskBuffer, count, color } = colorLayer;
     const [r, g, b] = color;
-
-    // Apply mask to canvas
-    for (const { idx, x, y } of canvas.scanIterator())
-      if (mask[y * width + x] === 0) canvas.bitmap.data.set([0, 0, 0], idx);
 
     // Skip if percent is less than minPercent
     const percent = count / size;
-    if (percent >= minPercent) {
-      layers.push({
-        id: `layer_${layerIdx}`,
-        zIndex: layerIdx,
-        color: rgbToHexString(r, g, b),
-        imageBuffer: await canvas.getBuffer("image/png"),
-      });
-    }
-
-    //  Clear canvas if not stack
-    if (!stack) canvas = baseCanvas.clone();
+    if (percent < minPercent) continue;
+    layers.push({
+      id: `layer_${layerIdx}`,
+      zIndex: layerIdx,
+      color: rgbToHexString(r, g, b),
+      imageBuffer: await sharp(maskBuffer, {
+        raw: { width, height, channels: 4 },
+      })
+        .png()
+        .toBuffer(),
+    });
   }
 
-  const jimpImage = new Jimp({ width, height });
-  jimpImage.bitmap.data = Buffer.from(quantizedPixelArray);
-  const preprocessedImage = await jimpImage.getBuffer("image/png");
+  const preprocessedImage = await sharp(Buffer.from(quantizedPixelArray), {
+    raw: { width, height, channels: 4 },
+  })
+    .png()
+    .toBuffer();
 
   return {
     layers,
