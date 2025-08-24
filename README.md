@@ -17,7 +17,7 @@ pnpm add cv-trace
 
 ```javascript
 import { readFileSync, writeFileSync } from "fs";
-import { binaryPreprocess, potrace, optimizeSvg } from "cv-trace";
+import { binaryPreprocess, potrace, svgoOptimize } from "cv-trace";
 import type { BinaryOptions } from "cv-trace";
 // 1. Binary preprocessing
 const layerData = await binaryPreprocess(imageBuffer, {
@@ -27,14 +27,14 @@ const layerData = await binaryPreprocess(imageBuffer, {
 // 2. Vectorize with potrace
 const result = await potrace(layerData);
 // 3. Optimize SVG (optional)
-result.svg = await optimizeSvg(result.svg);
+result.svg = await svgoOptimize(result.svg);
 writeFileSync("./output.svg", result.svg);
 writeFileSync("./preview.png", result.preprocessedImage);
 ```
 
 ```javascript
 import { readFileSync, writeFileSync } from "fs";
-import { quantizePreprocess, potrace, optimizeSvg } from "cv-trace";
+import { quantizePreprocess, potrace, svgoOptimize } from "cv-trace";
 import type { QuantizeOptions } from "cv-trace";
 const imageBuffer = readFileSync("./test1.jpg");
 // 1. Color quantization preprocessing  
@@ -46,7 +46,7 @@ const layerData = await quantizePreprocess(imageBuffer, {
 // 2. Vectorize with potrace
 const result = await potrace(layerData);
 // 3. Optimize SVG (optional)
-result.svg = await optimizeSvg(result.svg);
+result.svg = await svgoOptimize(result.svg);
 writeFileSync("./output1.svg", result.svg);
 writeFileSync("./preview1.png", result.preprocessedImage);
 ```

@@ -25,4 +25,4 @@ export { potrace, type PotraceOptions } from "./trace/potrace.js";
 // Optimizer
 
 // SVGO
-export { optimizeSvg, type SvgoOptions } from "./optimizer/svgo.js";
+export { svgoOptimize, type SvgoOptions } from "./optimizer/svgo.js";

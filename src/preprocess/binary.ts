@@ -1,11 +1,8 @@
 import sharp from "sharp";
 import { LayerData, OriginalMetadata, Layer } from "../types/index.js";
-import { rgbToBT709 } from "../utils/color.js";
 
 export type BinaryOptions = {
   threshold?: [number, number];
-  brightness?: number;
-  blur?: number;
   color?: string;
 };
 
@@ -13,12 +10,7 @@ export async function binaryPreprocess(
   image: Buffer,
   options: BinaryOptions = {}
 ): Promise<LayerData> {
-  const {
-    color = "#000000",
-    threshold = [128, 255],
-    brightness,
-    blur,
-  } = options;
+  const { color = "#000000", threshold = [128, 255] } = options;
 
   const sharpImage = sharp(image);
   const metadata = await sharpImage.metadata();
@@ -31,30 +23,20 @@ export async function binaryPreprocess(
     format: metadata.format,
   };
 
-  // Apply image filters
-  let processedSharp = sharpImage.clone();
-  if (brightness !== undefined)
-    processedSharp = processedSharp.modulate({ brightness: brightness });
-  if (blur !== undefined) processedSharp = processedSharp.blur(blur);
+  const pixelBuffer = await sharpImage
+    .grayscale()
+    .ensureAlpha()
+    .raw()
+    .toBuffer();
 
-  // Get RGBA pixel data
-  const pixelBuffer = await processedSharp.ensureAlpha().raw().toBuffer();
-
-  // Binary processing
-  for (let i = 0; i < pixelBuffer.length; i += 4) {
-    const r = pixelBuffer[i] || 0;
-    const g = pixelBuffer[i + 1] || 0;
-    const b = pixelBuffer[i + 2] || 0;
-
-    // Convert to grayscale using luminance formula
-    const gray = rgbToBT709(r, g, b);
+  for (let idx = 0; idx < pixelBuffer.length; idx++) {
+    const gray = pixelBuffer[idx] ?? 0;
     const bw = gray >= threshold[0] && gray <= threshold[1] ? 255 : 0;
-    // Set RGB to binary value, keep alpha
-    pixelBuffer.set([bw, bw, bw], i);
+    pixelBuffer[idx] = bw;
   }
 
   const processedImageBuffer = await sharp(pixelBuffer, {
-    raw: { width, height, channels: 4 },
+    raw: { width, height, channels: 1 },
   })
     .png()
     .toBuffer();
