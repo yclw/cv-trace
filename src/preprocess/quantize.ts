@@ -94,7 +94,7 @@ export async function quantizePreprocess(
   for (let layerIdx = 0; layerIdx < colorLayers.length; layerIdx++) {
     const colorLayer = colorLayers[layerIdx];
     if (!colorLayer) continue;
-    const { maskBuffer, count, color } = colorLayer;
+    const { count, color } = colorLayer;
     const [r, g, b] = color;
 
     // Stack mode
@@ -110,7 +110,7 @@ export async function quantizePreprocess(
       id: `layer_${layerIdx}`,
       zIndex: layerIdx,
       color: rgbToHexString(r, g, b),
-      imageBuffer: await sharp(maskBuffer, {
+      imageBuffer: await sharp(colorLayer.maskBuffer, {
         raw: { width, height, channels: 1 },
       })
         .png()
