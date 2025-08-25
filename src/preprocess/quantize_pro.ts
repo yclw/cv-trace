@@ -103,7 +103,6 @@ export async function quantizeProPreprocess(
       maskSharp = await maskSharp.median(median);
     }
     const processedBuffer = await maskSharp.raw().toBuffer();
-    writeFileSync(`${layerIdx}.png`, await maskSharp.png().toBuffer());
     colorLayer.maskBuffer = Buffer.from(processedBuffer);
     filteredMaskBuffer = Buffer.from(
       bitwiseAnd(filteredMaskBuffer, colorLayer.maskBuffer)
