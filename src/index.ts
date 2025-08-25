@@ -17,6 +17,12 @@ export {
   type QuantizeOptions,
 } from "./preprocess/quantize.js";
 
+// Quantize Pro Preprocess
+export {
+  quantizeProPreprocess,
+  type QuantizeProOptions,
+} from "./preprocess/quantize_pro.js";
+
 // Trace
 
 // Potrace Trace

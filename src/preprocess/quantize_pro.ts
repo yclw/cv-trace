@@ -2,19 +2,21 @@ import sharp from "sharp";
 import { buildPalette, utils, applyPalette } from "image-q";
 import { LayerData, OriginalMetadata, Layer } from "../types/index.js";
 import { rgbToHexString, rgbToBT709, rgbToHex } from "../utils/color.js";
-import { bitwiseAnd } from "../utils/buffer.js";
+import { bitwiseAnd, findNearestNonEmpty } from "../utils/buffer.js";
+import { writeFileSync } from "fs";
 
-export type QuantizeOptions = {
+export type QuantizeProOptions = {
   colorCount?: number;
   minPercent?: number;
   stack?: boolean;
+  median?: number;
 };
 
-export async function quantizePreprocess(
+export async function quantizeProPreprocess(
   image: Buffer,
-  options: QuantizeOptions = {}
+  options: QuantizeProOptions = {}
 ): Promise<LayerData> {
-  const { colorCount = 8, minPercent = 0, stack = true } = options;
+  const { colorCount = 8, minPercent = 0, stack = true, median } = options;
 
   const sharpImage = sharp(image);
   const metadata = await sharpImage.metadata();
@@ -87,6 +89,58 @@ export async function quantizePreprocess(
 
     colorLayer.count++;
     colorLayer.maskBuffer[pixelIdx] = 0;
+  }
+
+  // Filter mask buffer
+  let filteredMaskBuffer = Buffer.from(whiteBuffer);
+  for (let layerIdx = 0; layerIdx < colorLayers.length; layerIdx++) {
+    const colorLayer = colorLayers[layerIdx];
+    if (!colorLayer) continue;
+    let maskSharp = await sharp(colorLayer.maskBuffer, {
+      raw: { width, height, channels: 1 },
+    }).grayscale();
+    if (median !== undefined) {
+      maskSharp = await maskSharp.median(median);
+    }
+    const processedBuffer = await maskSharp.raw().toBuffer();
+    writeFileSync(`${layerIdx}.png`, await maskSharp.png().toBuffer());
+    colorLayer.maskBuffer = Buffer.from(processedBuffer);
+    filteredMaskBuffer = Buffer.from(
+      bitwiseAnd(filteredMaskBuffer, colorLayer.maskBuffer)
+    );
+  }
+
+  for (let pixelIdx = 0; pixelIdx < size; pixelIdx++) {
+    if (filteredMaskBuffer[pixelIdx] === 255) {
+      // Find nearest non-empty pixel
+      const nearestNonEmptyIdx = findNearestNonEmpty(
+        filteredMaskBuffer,
+        pixelIdx,
+        width,
+        height
+      );
+      if (nearestNonEmptyIdx !== -1) {
+        // Find color layer of nearest non-empty pixel
+        const rgbaIdx = nearestNonEmptyIdx * 4;
+        const [r, g, b] = [
+          quantizedPixelArray[rgbaIdx] ?? 0,
+          quantizedPixelArray[rgbaIdx + 1] ?? 0,
+          quantizedPixelArray[rgbaIdx + 2] ?? 0,
+        ];
+
+        const colorKey = rgbToHex(r, g, b);
+        const layerIndex = colorLayerMap.get(colorKey);
+
+        if (layerIndex === undefined) continue;
+
+        const colorLayer = colorLayers[layerIndex];
+        if (!colorLayer) continue;
+
+        // Add pixel to color layer
+        colorLayer.count++;
+        colorLayer.maskBuffer[pixelIdx] = 0;
+      }
+    }
   }
 
   const layers: Layer[] = [];
