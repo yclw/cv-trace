@@ -16,3 +16,4 @@ build/Release
 dist
 node_modules
 output
+test.ts

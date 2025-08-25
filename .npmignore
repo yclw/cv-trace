@@ -9,6 +9,9 @@ test/
 examples/
 *.log
 *.tmp
+doce/
+
+test.ts
 
 README.dev.md
 docs/

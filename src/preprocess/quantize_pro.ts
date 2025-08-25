@@ -98,9 +98,8 @@ export async function quantizeProPreprocess(
     let maskSharp = await sharp(colorLayer.maskBuffer, {
       raw: { width, height, channels: 1 },
     }).grayscale();
-    if (median !== undefined) {
-      maskSharp = await maskSharp.median(median);
-    }
+    if (median !== undefined) maskSharp = await maskSharp.median(median);
+
     const processedBuffer = await maskSharp.raw().toBuffer();
     colorLayer.maskBuffer = Buffer.from(processedBuffer);
     filteredMaskBuffer = Buffer.from(

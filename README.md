@@ -55,11 +55,11 @@ writeFileSync("./preview1.png", result.preprocessedImage);
 
 ### Example
 
-|        Original Image        |         Preprocessed Image         |          Vector Result           |
-| :--------------------------: | :--------------------------------: | :------------------------------: |
-| ![test0.jpg](examples/test0.png) | ![preview0.png](examples/preview0.png) | ![output0.svg](examples/output0.svg) |
-|  ![test.jpg](examples/test.jpg)  |  ![preview.png](examples/preview.png)  |  ![output.svg](examples/output.svg)  |
-| ![test1.jpg](examples/test1.jpg) | ![preview1.png](examples/preview1.png) | ![output1.svg](examples/output1.svg) |
+|        Original Image        |          Vector Result           |
+| :--------------------------: | :------------------------------: |
+|  ![test.jpg](doce/image/icon.jpg)  |  ![output.svg](doce/image/icon.svg)  |
+| ![test1.jpg](examples/test1.jpg) | ![output1.svg](examples/output1.svg) |
+| ![photos.png](doce/image/photos.png) | ![output1.svg](doce/image/photos-stack.svg) |
 
 ## Core
 

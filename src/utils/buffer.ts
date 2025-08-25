@@ -46,12 +46,10 @@ export function findNearestNonEmpty(
     if (visited.has(currentIdx)) continue;
     visited.add(currentIdx);
 
-    // 检查当前像素是否为非空白像素
     if (map[currentIdx] === 0) {
       return currentIdx;
     }
 
-    // 添加邻近像素到队列
     for (const direction of directions) {
       const [dx, dy] = direction;
       const newX = current.x + dx;
