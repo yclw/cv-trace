@@ -3,7 +3,6 @@ import { buildPalette, utils, applyPalette } from "image-q";
 import { LayerData, OriginalMetadata, Layer } from "../types/index.js";
 import { rgbToHexString, rgbToBT709, rgbToHex } from "../utils/color.js";
 import { bitwiseAnd, findNearestNonEmpty } from "../utils/buffer.js";
-import { writeFileSync } from "fs";
 
 export type QuantizeProOptions = {
   colorCount?: number;
