@@ -72,11 +72,15 @@ export async function quantizeProPreprocess(
   // Generate layers directly while processing pixels
   for (let pixelIdx = 0; pixelIdx < size; pixelIdx++) {
     const rgbaIdx = pixelIdx * 4;
-    const [r, g, b] = [
-      quantizedPixelArray[rgbaIdx] ?? 0,
-      quantizedPixelArray[rgbaIdx + 1] ?? 0,
-      quantizedPixelArray[rgbaIdx + 2] ?? 0,
+    const [r, g, b, alpha] = [
+      quantizedPixelArray[rgbaIdx] ?? 255,
+      quantizedPixelArray[rgbaIdx + 1] ?? 255,
+      quantizedPixelArray[rgbaIdx + 2] ?? 255,
+      quantizedPixelArray[rgbaIdx + 3] ?? 0,
     ];
+
+    // Skip transparent pixels (alpha < 128), let them remain white
+    if (alpha < 128) continue;
 
     const colorKey = rgbToHex(r, g, b);
     const layerIndex = colorLayerMap.get(colorKey);
@@ -108,7 +112,10 @@ export async function quantizeProPreprocess(
   }
 
   for (let pixelIdx = 0; pixelIdx < size; pixelIdx++) {
-    if (filteredMaskBuffer[pixelIdx] === 255) {
+    if (
+      filteredMaskBuffer[pixelIdx] === 255 &&
+      (quantizedPixelArray[pixelIdx * 4 + 3] ?? 0) > 128
+    ) {
       // Find nearest non-empty pixel
       const nearestNonEmptyIdx = findNearestNonEmpty(
         filteredMaskBuffer,
@@ -119,11 +126,14 @@ export async function quantizeProPreprocess(
       if (nearestNonEmptyIdx !== -1) {
         // Find color layer of nearest non-empty pixel
         const rgbaIdx = nearestNonEmptyIdx * 4;
-        const [r, g, b] = [
-          quantizedPixelArray[rgbaIdx] ?? 0,
-          quantizedPixelArray[rgbaIdx + 1] ?? 0,
-          quantizedPixelArray[rgbaIdx + 2] ?? 0,
+        const [r, g, b, alpha] = [
+          quantizedPixelArray[rgbaIdx] ?? 255,
+          quantizedPixelArray[rgbaIdx + 1] ?? 255,
+          quantizedPixelArray[rgbaIdx + 2] ?? 255,
+          quantizedPixelArray[rgbaIdx + 3] ?? 0,
         ];
+
+        if (alpha < 128) continue;
 
         const colorKey = rgbToHex(r, g, b);
         const layerIndex = colorLayerMap.get(colorKey);
